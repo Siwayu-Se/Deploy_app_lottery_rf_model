@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import numpy as np
+import matplotlib.pyplot as plt
 
 # โหลดโมเดลที่บันทึกไว้
 @st.cache_resource
@@ -68,7 +69,7 @@ if st.button("ทำนาย 🎯"):
         <h4>{prediction_text}</h4>
         
         <h3>ประเมินผลของโมเดล:</h3>
-        <p>MAE (Mean Absolute Error): {mean_absolute_error(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]))):.2f}</p>
+        <p>MAE (Mean Absolute Error): {mean_absolute_error(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']])):.2f}</p>
         <p>RMSE (Root Mean Squared Error): {np.sqrt(mean_squared_error(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']])))):.2f}</p>
         
         <h3>กราฟการกระจาย:</h3>
@@ -76,9 +77,7 @@ if st.button("ทำนาย 🎯"):
     </div>
     """, unsafe_allow_html=True)
 
-# แสดงกราฟการกระจาย (Optional)
-import matplotlib.pyplot as plt
-
+# แสดงกราฟการกระจาย
 fig, ax = plt.subplots()
 ax.scatter(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]))
 ax.plot([data['prize_1st'].min(), data['prize_1st'].max()], [data['prize_1st'].min(), data['prize_1st'].max()], color='red', lw=2)
