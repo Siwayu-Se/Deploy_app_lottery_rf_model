@@ -4,3 +4,4 @@ pandas
 numpy
 cloudpickle
 scikit-surprise
+matplotlib
