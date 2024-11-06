@@ -3,7 +3,6 @@ import pandas as pd
 import pickle
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import numpy as np
-import matplotlib.pyplot as plt
 
 # โหลดโมเดลที่บันทึกไว้
 @st.cache_resource
@@ -61,26 +60,35 @@ if st.button("ทำนาย 🎯"):
     
     # สร้าง HTML สำหรับกรอบที่มีสีที่กำหนด
     prediction_text = f"การทำนายรางวัลที่ 1 สำหรับวันที่ {day} เดือน {month} ปี {year} คือ: **{int(prediction)}** บาท"
-    
-    # ครอบทุกผลลัพธ์ภายในกรอบเดียว
     st.markdown(f"""
-    <div style="padding: 30px; border: 2px solid {border_color}; border-radius: 10px; background-color: #f0f0f0;">
-        <h3>ผลการทำนาย:</h3>
+    <div style="padding: 20px; border: 2px solid {border_color}; border-radius: 10px; background-color: #f0f0f0;">
         <h4>{prediction_text}</h4>
-        
-        <h3>ประเมินผลของโมเดล:</h3>
-        <p>MAE (Mean Absolute Error): {mean_absolute_error(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']])):.2f}</p>
-        <p>RMSE (Root Mean Squared Error): {np.sqrt(mean_squared_error(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']])))):.2f}</p>
-        
-        <h3>กราฟการกระจาย:</h3>
-        <img src="data:image/png;base64,{st.pyplot(fig)}" alt="scatter plot"/>
     </div>
     """, unsafe_allow_html=True)
 
-# แสดงกราฟการกระจาย
+# เพิ่มส่วนแสดงข้อมูลประเมินผล
+st.markdown("### ประเมินผลของโมเดล:")
+
+# ประเมินผลโมเดล
+X_test = data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]
+y_test = data['prize_1st']
+y_pred = model_rf.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+# แสดง MAE และ RMSE
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("MAE (Mean Absolute Error)", f"{mae:.2f}")
+with col2:
+    st.metric("RMSE (Root Mean Squared Error)", f"{rmse:.2f}")
+
+# แสดงกราฟการกระจาย (Optional)
+import matplotlib.pyplot as plt
+
 fig, ax = plt.subplots()
-ax.scatter(data['prize_1st'], model_rf.predict(data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]))
-ax.plot([data['prize_1st'].min(), data['prize_1st'].max()], [data['prize_1st'].min(), data['prize_1st'].max()], color='red', lw=2)
+ax.scatter(y_test, y_pred)
+ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
 ax.set_xlabel("Actual")
 ax.set_ylabel("Predicted")
 ax.set_title("Actual vs Predicted Values")
