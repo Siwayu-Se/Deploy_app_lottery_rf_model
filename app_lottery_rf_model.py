@@ -8,27 +8,18 @@ import numpy as np
 st.set_page_config(
     page_title="ทำนายรางวัลที่ 1 ของหวยไทย",
     page_icon="🎉",
-    layout="centered",  # ใช้ layout แบบ 'centered' หรือ 'wide'
-    initial_sidebar_state="expanded"  # กำหนดสถานะของ Sidebar
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
-# Set background image URL
-background_image_url = "https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg?t=st=1730980649~exp=1730984249~hmac=e53c8de6cf9711b8c39b2daf4af1ec986daa4885c8686345ab09a8d94e0713a1&w=2000"
-
 # Set desired colors
-text_color = "#FFFFFF"  # Text color
+text_color = "#000000"  # Text color
 result_bg_color = "#F5FFFA"  # Result background color
 
 # Apply CSS for background and text colors
 st.markdown(
     f"""
     <style>
-    .stApp {{
-        background-image: url('{background_image_url}');
-        background-size: cover;
-        background-position: center;
-        height: 100vh;
-    }}
     h1, h2, h3, p, div {{
         color: {text_color} !important;
     }}
@@ -39,6 +30,20 @@ st.markdown(
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         opacity: 0.9;
         border: 2px solid {text_color};
+    }}
+    div.stButton > button:first-child {{
+        background-color: #FF5733; /* สีพื้นหลังของปุ่ม */
+        color: #FFFFFF; /* สีของตัวหนังสือ */
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: 2px solid #C70039;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: 0.3s;
+    }}
+    div.stButton > button:first-child:hover {{
+        background-color: #C70039; /* สีเมื่อ hover บนปุ่ม */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
     }}
     </style>
     """,
@@ -84,37 +89,4 @@ st.markdown("""
 # เลือกปี, เดือน และงวดสำหรับทำนาย
 year = st.selectbox("เลือกปี:", sorted(data['year'].unique()), help="เลือกปีที่ต้องการทำนายรางวัล")
 month = st.selectbox("เลือกเดือน:", sorted(data['month'].unique()), help="เลือกเดือนที่ต้องการทำนายรางวัล")
-day = st.selectbox("เลือกงวด:", [1, 16], help="เลือกวันของงวด (1 หรือ 16)")
-
-# เลือกค่า lag (ค่าของรางวัลที่ผ่านมาที่ต้องใส่)
-prize_1st_lag1 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดที่แล้ว:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้า")
-prize_1st_lag2 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น")
-
-# ทำนายผล
-if st.button("ทำนาย 🎯"):
-    input_data = pd.DataFrame([[year, month, day, prize_1st_lag1, prize_1st_lag2]], 
-                              columns=['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2'])
-    prediction = model_rf.predict(input_data)[0]
-    st.success(f"การทำนายรางวัลที่ 1 สำหรับวันที่ {day} เดือน {month} ปี {year} คือ: **{int(prediction)}**")
-
-# เพิ่มส่วนแสดงข้อมูลประเมินผล
-st.markdown("### ประเมินผลของโมเดล:")
-
-# ประเมินผลโมเดล
-X_test = data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]
-y_test = data['prize_1st']
-y_pred = model_rf.predict(X_test)
-mae = mean_absolute_error(y_test, y_pred)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-# แสดงกราฟการกระจาย (Optional)
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-ax.scatter(y_test, y_pred)
-ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
-ax.set_xlabel("Actual")
-ax.set_ylabel("Predicted")
-ax.set_title("Actual vs Predicted Values")
-
-st.pyplot(fig)
+day = st.selectbox
