@@ -57,6 +57,28 @@ day = st.selectbox("เลือกงวด:", [1, 16], help="เลือก�
 prize_1st_lag1 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดที่แล้ว:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้า")
 prize_1st_lag2 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น")
 
+# ปรับแต่งปุ่ม "ทำนาย"
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        color: #FFFFFF;
+        background-color: #C70039;  /* สีพื้นหลัง */
+        padding: 15px 30px;
+        font-size: 20px;
+        border-radius: 10px;
+        border: 2px solid #FF5733;  /* ขอบปุ่ม */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+    div.stButton > button:first-child:hover {
+        background-color: #FF5733;  /* สีพื้นหลังตอน hover */
+        border-color: #C70039;  /* ขอบปุ่มตอน hover */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # ทำนายผล
 if st.button("ทำนาย 🎯"):
     input_data = pd.DataFrame([[year, month, day, prize_1st_lag1, prize_1st_lag2]], 
