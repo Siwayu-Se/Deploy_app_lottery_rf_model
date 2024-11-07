@@ -16,7 +16,7 @@ st.set_page_config(
 background_image_url = "https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg?t=st=1730980649~exp=1730984249~hmac=e53c8de6cf9711b8c39b2daf4af1ec986daa4885c8686345ab09a8d94e0713a1&w=2000"
 
 # Set desired colors
-text_color = "#00FFFF"  # Text color
+text_color = "#FFFFFF"  # Text color
 result_bg_color = "#F5FFFA"  # Result background color
 
 # Apply CSS for background and text colors
