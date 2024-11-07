@@ -26,9 +26,9 @@ model_rf = load_model()
 def load_data():
     data = pd.read_csv('lottery.csv')
     data['date'] = pd.to_datetime(data['date'])
-    data['year'] = data['date'].dt.year.astype(int)  # แปลงเป็น int
-    data['month'] = data['date'].dt.month.astype(int)  # แปลงเป็น int
-    data['day'] = data['date'].dt.day.astype(int)  # แปลงเป็น int
+    data['year'] = data['date'].dt.year
+    data['month'] = data['date'].dt.month
+    data['day'] = data['date'].dt.day
     data['prize_1st_lag1'] = data['prize_1st'].shift(1)
     data['prize_1st_lag2'] = data['prize_1st'].shift(2)
     data.dropna(inplace=True)
