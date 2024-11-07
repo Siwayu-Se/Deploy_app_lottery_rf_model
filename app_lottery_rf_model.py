@@ -12,39 +12,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # กำหนดสถานะของ Sidebar
 )
 
-# Set background image URL
-background_image_url = "https://images.pexels.com/photos/713054/pexels-photo-713054.jpeg"
-
-# Set desired colors
-text_color = "#007ACC"  # Text color
-result_bg_color = "#E0F7FA"  # Result background color
-
-# Apply CSS for background and text colors
-st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-image: url('{background_image_url}');
-        background-size: cover;
-        background-position: center;
-        height: 100vh;
-    }}
-    h1, h2, h3, p, div {{
-        color: {text_color} !important;
-    }}
-    .result-container {{
-        background-color: {result_bg_color};
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        opacity: 0.9;
-        border: 2px solid {text_color};
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # โหลดโมเดลที่บันทึกไว้
 @st.cache_resource
 def load_model():
@@ -96,25 +63,3 @@ if st.button("ทำนาย 🎯"):
                               columns=['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2'])
     prediction = model_rf.predict(input_data)[0]
     st.success(f"การทำนายรางวัลที่ 1 สำหรับวันที่ {day} เดือน {month} ปี {year} คือ: **{int(prediction)}**")
-
-# เพิ่มส่วนแสดงข้อมูลประเมินผล
-st.markdown("### ประเมินผลของโมเดล:")
-
-# ประเมินผลโมเดล
-X_test = data[['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2']]
-y_test = data['prize_1st']
-y_pred = model_rf.predict(X_test)
-mae = mean_absolute_error(y_test, y_pred)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-# แสดงกราฟการกระจาย (Optional)
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-ax.scatter(y_test, y_pred)
-ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', lw=2)
-ax.set_xlabel("Actual")
-ax.set_ylabel("Predicted")
-ax.set_title("Actual vs Predicted Values")
-
-st.pyplot(fig)
