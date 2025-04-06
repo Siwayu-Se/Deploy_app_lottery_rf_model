@@ -1,5 +1,3 @@
-%%writefile app_lottery_lr_model.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
