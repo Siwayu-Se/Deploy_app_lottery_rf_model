@@ -1,87 +1,55 @@
+%%writefile app_lottery_lr_model.py
+
 import streamlit as st
 import pandas as pd
-import pickle
-from sklearn.metrics import mean_absolute_error, mean_squared_error
 import numpy as np
+import pickle
+import gdown
+import os
 
 # ตั้งค่าหน้าเว็บของ Streamlit
 st.set_page_config(
-    page_title="ทำนายรางวัลที่ 1 ของหวยไทย",
-    page_icon="🎉",
-    layout="centered",  # ใช้ layout แบบ 'centered' หรือ 'wide'
-    initial_sidebar_state="expanded"  # กำหนดสถานะของ Sidebar
+    page_title="ทำนายรางวัลที่ 1 ของหวยไทย (Linear Regression)",
+    page_icon="📈",
+    layout="centered",
+    initial_sidebar_state="expanded"
 )
 
-# โหลดโมเดลที่บันทึกไว้
+# โหลดโมเดลจาก Google Drive
 @st.cache_resource
-def load_model():
-    with open('model_rf.pkl', 'rb') as file:
-        model = pickle.load(file)
+def load_model_from_gdrive():
+    url = 'https://drive.google.com/uc?id=1G8bYPU7e8w5I32FgvWPXjR6v1e5ylRxC'
+    output = 'model_lr.pkl'
+    if not os.path.exists(output):
+        gdown.download(url, output, quiet=False)
+    with open(output, 'rb') as f:
+        model = pickle.load(f)
     return model
 
-model_rf = load_model()
-
-# โหลดข้อมูลเพื่อใช้ในการทดสอบ
-@st.cache_data
-def load_data():
-    data = pd.read_csv('lottery.csv')
-    data['date'] = pd.to_datetime(data['date'])
-    data['year'] = data['date'].dt.year
-    data['month'] = data['date'].dt.month
-    data['day'] = data['date'].dt.day
-    data['prize_1st_lag1'] = data['prize_1st'].shift(1)
-    data['prize_1st_lag2'] = data['prize_1st'].shift(2)
-    data.dropna(inplace=True)
-    return data
-
-data = load_data()
+model = load_model_from_gdrive()
 
 # ส่วนของแอป Streamlit
-st.title("🎉 ทำนายรางวัลที่ 1 ของหวยไทย 🎉")
-st.write("แอปนี้ใช้ทำนายรางวัลที่ 1 ของหวยไทย โดยใช้ข้อมูลที่ผ่านมาและโมเดลที่ฝึกไว้")
+st.title("📈 ทำนายรางวัลที่ 1 ของหวยไทย (Linear Regression)")
+st.write("แอปนี้ใช้โมเดล Linear Regression ที่ฝึกมาแล้วในการทำนายรางวัลที่ 1 โดยไม่ใช้ฐานข้อมูล")
 
-# เพิ่มข้อความแนะนำ
 st.markdown("""
 ### วิธีการใช้งาน:
-1. เลือกปีและเดือนของงวดที่ต้องการทำนาย
-2. กรอกค่ารางวัลที่ 1 ของงวดที่แล้วและงวดก่อนหน้านั้น
-3. กดปุ่ม 'ทำนาย' เพื่อดูผลการทำนาย
+1. เลือกปี เดือน และวันของงวด
+2. กรอกค่ารางวัลที่ 1 ของงวดที่แล้ว และงวดก่อนหน้านั้น
+3. กดปุ่ม 'ทำนาย' เพื่อดูผลลัพธ์
 """)
 
-# เลือกปี, เดือน และงวดสำหรับทำนาย
-year = st.selectbox("เลือกปี:", sorted(data['year'].unique()), help="เลือกปีที่ต้องการทำนายรางวัล")
-month = st.selectbox("เลือกเดือน:", sorted(data['month'].unique()), help="เลือกเดือนที่ต้องการทำนายรางวัล")
-day = st.selectbox("เลือกงวด:", [1, 16], help="เลือกวันของงวด (1 หรือ 16)")
+# อินพุตจากผู้ใช้
+year = st.number_input("ปี (เช่น 2025):", min_value=2000, max_value=2100, value=2025)
+month = st.number_input("เดือน (1-12):", min_value=1, max_value=12, value=4)
+day = st.selectbox("วันของงวด:", [1, 16])
 
-# เลือกค่า lag (ค่าของรางวัลที่ผ่านมาที่ต้องใส่)
-prize_1st_lag1 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดที่แล้ว:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้า")
-prize_1st_lag2 = st.number_input("กรุณากรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น:", min_value=0, help="กรอกค่ารางวัลที่ 1 ของงวดก่อนหน้านั้น")
+prize_1st_lag1 = st.number_input("รางวัลที่ 1 ของงวดก่อนหน้า:", min_value=0)
+prize_1st_lag2 = st.number_input("รางวัลที่ 1 ของสองงวดก่อน:", min_value=0)
 
-# ปรับแต่งปุ่ม "ทำนาย"
-st.markdown(
-    """
-    <style>
-    div.stButton > button:first-child {
-        color: #FFFFFF;
-        background-color: #C70039;  /* สีพื้นหลัง */
-        padding: 15px 30px;
-        font-size: 20px;
-        border-radius: 10px;
-        border: 2px solid #FF5733;  /* ขอบปุ่ม */
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s ease;
-    }
-    div.stButton > button:first-child:hover {
-        background-color: #FF5733;  /* สีพื้นหลังตอน hover */
-        border-color: #C70039;  /* ขอบปุ่มตอน hover */
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# ทำนายผล
+# ทำนาย
 if st.button("ทำนาย 🎯"):
-    input_data = pd.DataFrame([[year, month, day, prize_1st_lag1, prize_1st_lag2]], 
-                              columns=['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2'])
-    prediction = model_rf.predict(input_data)[0]
-    st.success(f"การทำนายรางวัลที่ 1 สำหรับวันที่ {day} เดือน {month} ปี {year} คือ: **{int(prediction)}**")
+    input_df = pd.DataFrame([[year, month, day, prize_1st_lag1, prize_1st_lag2]],
+                            columns=['year', 'month', 'day', 'prize_1st_lag1', 'prize_1st_lag2'])
+    prediction = model.predict(input_df)[0]
+    st.success(f"🎯 การทำนายรางวัลที่ 1 สำหรับ {day}/{month}/{year} คือ: **{int(prediction)}**")
